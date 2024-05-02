@@ -1,0 +1,114 @@
+sudo rkfill unblock wifi
+dnf install NetworkManager-wifi
+nmcli device set wlp1s0 managed yes
+dnf search xorg
+xorg-x11-xinit
+xorg-x11-server
+matchbox-window-manager
+git
+Firefox
+httpd
+dnf module list PHP
+dnf module list MySQL
+Dnf module list httpd
+Dnf module reset 
+Dnf module disable
+
+sudo rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+
+sudo yum localinstall https://dev.mysql.com/get/mysql57-community-release-el7-11.noarch.rpm
+
+yum install --nogpgcheck your_package
+
+sudo yum install mysql-community-server 
+
+sudo dnf module enable php:8.0
+dnf module switch-to php:7.4
+
+dnf install php php-{cli,fpm,json,common,mysql,zip,gd,intl,mbstring,curl,xml,pear,tidy,soap,bcmath,xmlrpc}
+
+sudo dnf install php php-cli php-gd php-curl php-zip php-mbstring php-mysqlnd -y
+
+sudo dnf install php-{common,gmp,fpm,curl,intl,pdo,mbstring,gd,xml,cli,zip,mysqli}
+
+vi /etc/php.ini
+memory_limit = 256M
+
+
+
+systemctl enable --now mysqld
+systemctl status mysqld
+mysql_secure_installation
+mysql -u root -p
+CREATE DATABASE drupal;
+CREATE USER 'eki'@'localhost' IDENTIFIED BY "STRONG PASSWORD";
+GRANT ALL PRIVILEGES ON drupal.* TO 'eki'@'localhost';
+FLUSH PRIVILEGES;
+Exit
+
+dnf install httpd
+systemctl enable --now httpd
+firewall-cmd --add-service={http,https} --permanent
+firewall-cmd --reload
+
+
+
+https://www.drupal.org/download-latest/tar.gz
+cd /tmp && wget https://ftp.drupal.org/files/projects/drupal-8.9.1.tar.gz
+dnf install tar tar xvf drupal.tar.gz
+ mv drupal-*/ /var/www/html/drupal
+chown -R apache:apache /var/www/html/drupal 
+chmod -R 755 /var/www/html/
+
+
+mkdir /var/www/html/drupal/sites/default/files
+
+cp /var/www/html/drupal/sites/default/default.settings.php /var/www/html/drupal/sites/default/settings.php
+
+sudo semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html/drupal(/.*)?"
+sudo semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/drupal/sites/default/settings.php'
+sudo semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/drupal/sites/default/files'
+sudo restorecon -Rv /var/www/html/drupal
+sudo restorecon -v /var/www/html/drupal/sites/default/settings.php
+sudo restorecon -Rv /var/www/html/drupal/sites/default/files
+sudo chown -R apache:apache  /var/www/html/drupal
+
+dnf install policycoreutils-python-utils
+
+semanage fcontext -a -t httpd_sys_rw_content_t "/var/www/html/drupal(/.*)?"
+
+semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/drupal/sites/default/settings.php'
+
+semanage fcontext -a -t httpd_sys_rw_content_t '/var/www/html/drupal/sites/default/files'
+
+restorecon -Rv /var/www/html/drupal
+
+restorecon -v /var/www/html/drupal/sites/default/settings.php
+
+restorecon -Rv /var/www/html/drupal/sites/default/files
+
+chown -R apache:apache  /var/www/html/drupal
+
+
+vi /etc/httpd/conf.d/drupal.conf
+
+
+<VirtualHost *:80>
+     ServerName example.com
+     ServerAdmin admin@example.com
+     DocumentRoot /var/www/html/drupal/
+
+     <Directory /var/www/html/drupal>
+            Options Indexes FollowSymLinks
+            AllowOverride All
+            Require all granted
+            RewriteEngine on
+            RewriteBase /
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]
+    </Directory>
+</VirtualHost>
+
+systemctl restart httpd
+
